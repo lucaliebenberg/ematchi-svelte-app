@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { createEventDispatcher, onMount } from "svelte";
 	import Countdown from "./Countdown.svelte";
     import Found from "./Found.svelte";
 	import Grid from "./Grid.svelte";
@@ -7,15 +7,30 @@
     import type { Level } from "./levels";
 	import { shuffle } from "./utils";
 
-    const level = levels[0]
 
-    let size: number = level.size;
-    let grid: string[] = create_grid(level);
+
+    const dispatch = createEventDispatcher()
+
+    let size: number
+    let grid: string[] = []
     let found: string[] = [];
-    let remaining: number = level.duration;
-    let duration: number = level.duration;
+    let remaining = 0
+    let duration = 0
     let playing: boolean = false;
 
+    export function start(level: Level) {
+        size = level.size;
+        grid = create_grid(level);
+        remaining = duration = level.duration;
+
+        resume()
+    }
+
+    function resume() {
+        playing = true;
+        countdown();
+        dispatch('play')
+    }
 
     function create_grid(level: Level) {
         const copy = level.emojis.slice();
@@ -47,6 +62,7 @@
 
             if (remaining <= 0) {
                 // TODO the game has been lost
+                dispatch('lose')
                 playing = false;
             }
         }
@@ -54,19 +70,25 @@
         loop()
     }
 
-    onMount(countdown)
 </script>
 
 
-<div class="game">
+<div class="game" style="--size: {size}">
     <div class="info">
-        <Countdown remaining={remaining} duration={level.duration} on:click={() => {}} />
+        {#if playing}
+        <Countdown {remaining} {duration} on:click={() => {
+            playing = false;
+            dispatch('pause')
+        }} />
+        {/if}
     </div>
     <div class="grid-container">
         <Grid {grid} on:found={(e) => {
             found = [...found, e.detail.emoji];
 
-            if (found.length === size * size / 2) {}
+            if (found.length === size * size / 2) {
+                dispatch('win')
+            }
         }} 
         {found}
         />

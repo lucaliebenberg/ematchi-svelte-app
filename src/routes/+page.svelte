@@ -7,9 +7,18 @@
 
 	let state: 'waiting' | 'playing' | 'paused' | 'won' | 'lost' = 'waiting'
 
+	let game: Game;
+
 </script>
 
-<Game />
+	<Game 
+	bind:this={game} 
+	on:play={() => state = 'playing'}	
+	on:pause={() => state = 'paused'}	
+	on:win={() => state = 'won'}	
+	on:lose={() => state = 'lost'}	
+
+	/>
 
 {#if state !== 'playing'}
 	<Modal>
@@ -32,7 +41,9 @@
 				<button>quit</button>
 			{:else}
 				{#each levels as level}
-					<button>{level.label}</button>
+					<button
+					on:click={() => game.start(level)}
+					>{level.label}</button>
 				{/each}
 			
 			{/if}
