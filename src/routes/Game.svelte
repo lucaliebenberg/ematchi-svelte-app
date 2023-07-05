@@ -54,7 +54,7 @@
         let remaining_at_start = remaining;
 
         function loop() {
-            if (playing) return;
+            if (!playing) return;
 
             requestAnimationFrame(loop)
 
