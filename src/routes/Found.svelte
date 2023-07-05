@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { receive } from "./transitions";
+
+
 	import { get_twemoji_url } from "./utils";
 
     export let found: string[]
@@ -6,7 +9,19 @@
 
 <div class="found">
     {#each found as emoji (emoji)}
-    <img alt={emoji} src={get_twemoji_url(emoji)} />
+    <div class="pair">
+        <img
+        in:receive={{ key: `${emoji}:a` }} 
+        alt={emoji} 
+        src={get_twemoji_url(emoji)} 
+        />
+        <img
+        in:receive={{ key: `${emoji}:b` }} 
+        alt={emoji} 
+        src={get_twemoji_url(emoji)} 
+        />
+        
+    </div>
     {/each}
 </div>
 
@@ -16,10 +31,19 @@
         justify-content: center;
         align-items: center;
         gap: 0.5em;
+        height: 100%;
+    }
+
+    .pair {
+        width: 4em;
+        height: 4em;
     }
     
     img {
-        width: 5em;
-        height: 5em;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
     }
 </style>
